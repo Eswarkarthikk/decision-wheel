@@ -216,8 +216,7 @@ const DecisionWheel = () => {
       minHeight: '100vh',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center',
-      padding: '10px',
+      alignItems: 'center'
     },
     container: {
       width: '100%',
