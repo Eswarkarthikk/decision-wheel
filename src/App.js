@@ -15,26 +15,33 @@ const App = () => {
   const [result, setResult] = useState('');
   const [showResult, setShowResult] = useState(false);
   const tickIntervalRef = useRef(null);
-  const audioContextRef = useRef(null);
+
+  // Initialize audio context
+  useEffect(() => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const context = new AudioContext();
+    return () => {
+      if (context) {
+        context.close();
+      }
+    };
+  }, []);
 
   const playTickSound = () => {
     try {
-      // Create new context each time to avoid suspended state issues
-      const context = new (window.AudioContext || window.webkitAudioContext)();
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const context = new AudioContext();
       
       const oscillator = context.createOscillator();
       const gainNode = context.createGain();
 
-      // Connect the nodes
       oscillator.connect(gainNode);
       gainNode.connect(context.destination);
 
-      // Configure sound
       oscillator.type = 'square';
-      oscillator.frequency.value = 2000; // Higher frequency for more noticeable tick
-      gainNode.gain.value = 0.5; // Louder volume
+      oscillator.frequency.value = 2000;
+      gainNode.gain.value = 0.5;
 
-      // Quick sharp tick
       oscillator.start();
       setTimeout(() => {
         oscillator.stop();
@@ -47,21 +54,18 @@ const App = () => {
   };
 
   const startTickingSound = () => {
-    // Immediately play first tick
     playTickSound();
     
     let tickCount = 0;
     const tick = () => {
-      if (tickCount < 20 && isSpinning) {  // Reduced ticks but made them more pronounced
+      if (tickCount < 20 && isSpinning) {
         playTickSound();
         tickCount++;
-        // Faster ticks at start
         const delay = Math.min(100 + (tickCount * 10), 300);
         tickIntervalRef.current = setTimeout(tick, delay);
       }
     };
 
-    // Start ticking after a short delay
     setTimeout(tick, 100);
   };
 
@@ -100,16 +104,6 @@ const App = () => {
       setShowResult(true);
     }, 4000);
   };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopTickingSound();
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
 
   const addOption = () => {
     setOptions([...options, '']);
