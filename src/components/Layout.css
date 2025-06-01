@@ -1,0 +1,54 @@
+.app-body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0 20px 0;
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.logo {
+  width: clamp(150px, 25vw, 200px);
+  height: auto;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding: 80px 0 20px 0;
+  }
+  
+  .logo {
+    width: clamp(100px, 20vw, 130px);
+    top: 20px;
+    left: 20px;
+  }
+}
+
+.content-container {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.content-container.narrow {
+  max-width: min(900px, 95%);
+  text-align: center;
+} 
