@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import useSound from 'use-sound';
 import Layout from './components/Layout';
 import ContentPage from './components/ContentPage';
 import WheelForm from './components/WheelForm';
@@ -14,67 +15,26 @@ const App = () => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState('');
   const [showResult, setShowResult] = useState(false);
-  const tickIntervalRef = useRef(null);
+  const lastSegmentRef = useRef(null);
+  const intervalRef = useRef(null);
+  
+  const [playTick] = useSound('/tick.mp3', {
+    volume: 0.5
+  });
 
-  // Initialize audio context
+  // Watch for segment changes
   useEffect(() => {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const context = new AudioContext();
-    return () => {
-      if (context) {
-        context.close();
-      }
-    };
-  }, []);
+    if (!isSpinning || wheelOptions.length === 0) return;
 
-  const playTickSound = () => {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      
-      const oscillator = context.createOscillator();
-      const gainNode = context.createGain();
+    const anglePerSegment = 360 / wheelOptions.length;
+    const normalizedRotation = ((currentRotation % 360) + 360) % 360;
+    const currentSegment = Math.floor(normalizedRotation / anglePerSegment);
 
-      oscillator.connect(gainNode);
-      gainNode.connect(context.destination);
-
-      oscillator.type = 'square';
-      oscillator.frequency.value = 2000;
-      gainNode.gain.value = 0.5;
-
-      oscillator.start();
-      setTimeout(() => {
-        oscillator.stop();
-        context.close();
-      }, 50);
-
-    } catch (error) {
-      console.error('Audio error:', error);
+    if (lastSegmentRef.current !== currentSegment) {
+      playTick();
+      lastSegmentRef.current = currentSegment;
     }
-  };
-
-  const startTickingSound = () => {
-    playTickSound();
-    
-    let tickCount = 0;
-    const tick = () => {
-      if (tickCount < 20 && isSpinning) {
-        playTickSound();
-        tickCount++;
-        const delay = Math.min(100 + (tickCount * 10), 300);
-        tickIntervalRef.current = setTimeout(tick, delay);
-      }
-    };
-
-    setTimeout(tick, 100);
-  };
-
-  const stopTickingSound = () => {
-    if (tickIntervalRef.current) {
-      clearTimeout(tickIntervalRef.current);
-      tickIntervalRef.current = null;
-    }
-  };
+  }, [currentRotation, isSpinning, wheelOptions.length, playTick]);
 
   const spinWheel = () => {
     if (isSpinning) return;
@@ -85,14 +45,41 @@ const App = () => {
     const minRotation = 1800;
     const maxRotation = 3600;
     const randomRotation = Math.random() * (maxRotation - minRotation) + minRotation;
-    
     const newRotation = currentRotation + randomRotation;
+    
+    // Start the rotation
     setCurrentRotation(newRotation);
     
-    startTickingSound();
+    // Play ticks with decreasing frequency
+    let tickCount = 0;
+    const maxTicks = 40; // Increased for smoother sound
+    
+    const playTickWithDelay = () => {
+      if (tickCount < maxTicks) {
+        playTick();
+        tickCount++;
+        
+        // Start fast and gradually slow down
+        let delay;
+        if (tickCount < 15) {
+          delay = 50;  // Fast at start
+        } else if (tickCount < 25) {
+          delay = 100; // Medium speed
+        } else {
+          delay = 150 + (tickCount - 25) * 20; // Gradually slower
+        }
+        
+        intervalRef.current = setTimeout(playTickWithDelay, delay);
+      }
+    };
+    
+    // Start playing ticks
+    playTickWithDelay();
     
     setTimeout(() => {
-      stopTickingSound();
+      if (intervalRef.current) {
+        clearTimeout(intervalRef.current);
+      }
       setIsSpinning(false);
       
       // Calculate result
@@ -144,7 +131,10 @@ const App = () => {
     setCurrentView('form');
     setShowResult(false);
     setCurrentRotation(0);
-    stopTickingSound();
+    if (intervalRef.current) {
+      clearTimeout(intervalRef.current);
+    }
+    lastSegmentRef.current = null;
   };
 
   const renderContent = () => {
