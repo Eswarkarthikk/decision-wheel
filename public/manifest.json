@@ -1,7 +1,7 @@
 {
   "short_name": "Choice Wheel",
-  "name": "Choice Wheel - Random Decision Maker",
-  "description": "A fun and simple random choice maker. Spin the wheel and let it decide for you!",
+  "name": "Choice Wheel - Best Random Decision Maker",
+  "description": "Make instant decisions with our interactive spinning wheel. Perfect for classroom activities, team selection, and daily choices!",
   "icons": [
     {
       "src": "favicon.ico",
@@ -21,18 +21,33 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#667eea",
   "background_color": "#ffffff",
-  "categories": ["tools", "utilities", "games"],
+  "categories": [
+    "utilities",
+    "education",
+    "productivity",
+    "tools"
+  ],
   "screenshots": [
     {
       "src": "screenshot1.png",
       "sizes": "1280x720",
       "type": "image/png",
       "platform": "wide",
-      "label": "Decision Wheel Interface"
+      "label": "Choice Wheel Interface"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "New Decision",
+      "url": "/",
+      "description": "Start a new decision wheel"
+    }
+  ],
+  "orientation": "any",
+  "prefer_related_applications": false
 }
